@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Geo-Tagged Waste Proof</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+    }
+    button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    .box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Geo-Tagged Waste Processing Proof</h2>
+
+<label>Batch ID</label>
+<input type="text" id="batchId" placeholder="e.g. DRY_014">
+
+<button onclick="captureLocation()">📍 Capture Geo-Location</button>
+
+<div class="box" id="locationBox">Location not captured</div>
+
+<label>Upload Proof Photo</label>
+<input type="file" accept="image/*" capture="environment">
+
+<button onclick="submitProof()">✅ Submit Proof</button>
+
+<div class="box" id="output"></div>
+
+<script>
+let lat = null;
+let lon = null;
+
+function captureLocation() {
+  if (!navigator.geolocation) {
+    alert("Geolocation not supported");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      lat = pos.coords.latitude;
+      lon = pos.coords.longitude;
+      document.getElementById("locationBox").innerHTML =
+        `Latitude: ${lat}<br>Longitude: ${lon}`;
+    },
+    () => alert("Location permission denied")
+  );
+}
+
+function submitProof() {
+  const batchId = document.getElementById("batchId").value;
+  const time = new Date().toISOString();
+
+  if (!batchId || lat === null) {
+    alert("Please enter Batch ID and capture location");
+    return;
+  }
+
+  document.getElementById("output").innerHTML = `
+    <b>Proof Submitted ✔️</b><br><br>
+    <b>Batch ID:</b> ${batchId}<br>
+    <b>Timestamp:</b> ${time}<br>
+    <b>Latitude:</b> ${lat}<br>
+    <b>Longitude:</b> ${lon}
+  `;
+}
+</script>
+
+</body>
+</html>
