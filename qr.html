@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Waste Batch QR Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- QR Code Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    #qrContainer {
+      margin-top: 20px;
+    }
+
+    #batchLabel {
+      margin-top: 8px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #qrContainer, #qrContainer * {
+        visibility: visible;
+      }
+      #qrContainer {
+        position: absolute;
+        left: 50%;
+        top: 40%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Waste Batch QR Code Generator</h2>
+
+  <p>Enter Batch ID to generate QR code</p>
+
+  <input type="text" id="batchInput" placeholder="e.g. DRY_014">
+
+  <button onclick="generateQR()">Generate QR Code</button>
+
+  <div id="qrContainer">
+    <div id="qrcode"></div>
+    <div id="batchLabel"></div>
+  </div>
+
+  <button onclick="printQR()" id="printBtn" style="display:none;">
+    🖨️ Print QR Code
+  </button>
+
+  <script>
+    function generateQR() {
+      const batchId = document.getElementById("batchInput").value.trim();
+
+      if (!batchId) {
+        alert("Please enter a Batch ID");
+        return;
+      }
+
+      // Clear old QR
+      document.getElementById("qrcode").innerHTML = "";
+      document.getElementById("batchLabel").innerHTML = "";
+
+      const geoProofURL =
+        "https://YOUR_USERNAME.github.io/geo-proof-demo/?batch=" +
+        encodeURIComponent(batchId);
+
+      // Generate QR
+      new QRCode(document.getElementById("qrcode"), {
+        text: geoProofURL,
+        width: 200,
+        height: 200
+      });
+
+      // Show batch ID text
+      document.getElementById("batchLabel").innerText =
+        "Batch ID: " + batchId;
+
+      // Show print button
+      document.getElementById("printBtn").style.display = "block";
+    }
+
+    function printQR() {
+      window.print();
+    }
+  </script>
+
+</body>
+</html>
