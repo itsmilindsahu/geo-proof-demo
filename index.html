@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Geo-Tagged Waste Proof</title>
+  <title>Geo-Tagged Waste Proof Submission</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,89 +12,129 @@
       margin: auto;
       padding: 20px;
     }
-    button {
+
+    input, button {
+      width: 100%;
       padding: 10px;
       margin-top: 10px;
-      width: 100%;
+      font-size: 16px;
     }
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-    }
+
     .box {
       border: 1px solid #ccc;
       padding: 10px;
       margin-top: 15px;
+    }
+
+    #proofStatus {
+      margin-top: 15px;
+      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
 
-<h2>Geo-Tagged Waste Processing Proof</h2>
+  <h2>Geo-Tagged Waste Proof Submission</h2>
 
-<label>Batch ID</label>
-<input type="text" id="batchId" placeholder="e.g. DRY_014">
+  <!-- Batch ID -->
+  <label>Batch ID</label>
+  <input type="text" id="batchId" placeholder="Batch ID" readonly>
 
-<button onclick="captureLocation()">📍 Capture Geo-Location</button>
+  <!-- Capture Location -->
+  <button onclick="captureLocation()">📍 Capture Geo-Location</button>
 
-<div class="box" id="locationBox">Location not captured</div>
+  <div class="box" id="locationBox">
+    Location not captured
+  </div>
 
-<label>Upload Proof Photo</label>
-<input type="file" accept="image/*" capture="environment">
+  <!-- Photo Upload -->
+  <label>Upload Proof Photo (optional)</label>
+  <input type="file" accept="image/*" capture="environment">
 
-<button onclick="submitProof()">✅ Submit Proof</button>
+  <!-- Submit Proof -->
+  <button onclick="submitProof()">✅ Submit Proof</button>
 
-<div class="box" id="output"></div>
+  <!-- Proof Output -->
+  <div class="box" id="output"></div>
 
-<script>
-let lat = null;
-let lon = null;
+  <!-- Proof Status -->
+  <div id="proofStatus">
+    Proof Status: <span id="statusText">Not Submitted</span>
+  </div>
 
-function captureLocation() {
-  if (!navigator.geolocation) {
-    alert("Geolocation not supported");
-    return;
-  }
+  <!-- Demo Verification Buttons -->
+  <button onclick="markVerified()" style="margin-top:10px;">
+    ✔ Mark as Verified
+  </button>
 
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      lat = pos.coords.latitude;
-      lon = pos.coords.longitude;
-      document.getElementById("locationBox").innerHTML =
-        `Latitude: ${lat}<br>Longitude: ${lon}`;
-    },
-    () => alert("Location permission denied")
-  );
-}
+  <button onclick="markFlagged()">
+    ⚠ Mark as Flagged
+  </button>
 
-function submitProof() {
-  const batchId = document.getElementById("batchId").value;
-  const time = new Date().toISOString();
+  <script>
+    let latitude = null;
+    let longitude = null;
+    let proofStatus = "Not Submitted";
 
-  if (!batchId || lat === null) {
-    alert("Please enter Batch ID and capture location");
-    return;
-  }
+    /* Auto-fill Batch ID from QR */
+    const params = new URLSearchParams(window.location.search);
+    const batchFromQR = params.get("batch");
+    if (batchFromQR) {
+      document.getElementById("batchId").value = batchFromQR;
+    }
 
-  document.getElementById("output").innerHTML = `
-    <b>Proof Submitted ✔️</b><br><br>
-    <b>Batch ID:</b> ${batchId}<br>
-    <b>Timestamp:</b> ${time}<br>
-    <b>Latitude:</b> ${lat}<br>
-    <b>Longitude:</b> ${lon}
-  `;
-}
-</script>
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const batchFromQR = params.get("batch");
+    function captureLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported");
+        return;
+      }
 
-  if (batchFromQR) {
-    document.getElementById("batchId").value = batchFromQR;
-  }
-</script>
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+          document.getElementById("locationBox").innerHTML =
+            "Latitude: " + latitude + "<br>Longitude: " + longitude;
+        },
+        () => alert("Location permission denied")
+      );
+    }
+
+    function submitProof() {
+      if (!latitude || !longitude) {
+        alert("Please capture geo-location first");
+        return;
+      }
+
+      const batchId = document.getElementById("batchId").value;
+      const timestamp = new Date().toISOString();
+
+      document.getElementById("output").innerHTML = `
+        <b>Proof Submitted</b><br><br>
+        <b>Batch ID:</b> ${batchId}<br>
+        <b>Timestamp:</b> ${timestamp}<br>
+        <b>Latitude:</b> ${latitude}<br>
+        <b>Longitude:</b> ${longitude}
+      `;
+
+      proofStatus = "Pending Verification";
+      document.getElementById("statusText").innerText = proofStatus;
+      document.getElementById("statusText").style.color = "orange";
+    }
+
+    function markVerified() {
+      proofStatus = "Verified";
+      document.getElementById("statusText").innerText = proofStatus;
+      document.getElementById("statusText").style.color = "green";
+    }
+
+    function markFlagged() {
+      proofStatus = "Flagged";
+      document.getElementById("statusText").innerText = proofStatus;
+      document.getElementById("statusText").style.color = "red";
+    }
+  </script>
+
 </body>
 </html>
-
