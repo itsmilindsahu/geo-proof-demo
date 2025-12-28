@@ -86,6 +86,14 @@ function submitProof() {
   `;
 }
 </script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const batchFromQR = params.get("batch");
 
+  if (batchFromQR) {
+    document.getElementById("batchId").value = batchFromQR;
+  }
+</script>
 </body>
 </html>
+
