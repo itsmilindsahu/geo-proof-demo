@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Geo-Tagged Waste Proof Submission</title>
+  <title>TRACEWASTE – Geo-Verified Waste Proof</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 500px;
+      max-width: 520px;
       margin: auto;
       padding: 20px;
     }
@@ -26,18 +26,26 @@
       margin-top: 15px;
     }
 
+    .title {
+      text-align: center;
+    }
+
     #proofStatus, #incentiveBox {
       margin-top: 15px;
       font-weight: bold;
+    }
+
+    ul {
+      padding-left: 20px;
     }
   </style>
 </head>
 
 <body>
 
-  <h2>Geo-Tagged Waste Proof Submission</h2>
+  <h2 class="title">TRACEWASTE – Proof Submission</h2>
 
-  <!-- Role Selector -->
+  <!-- ROLE -->
   <label>Select Role</label>
   <select id="role" onchange="handleRoleChange()">
     <option value="collector">Collector</option>
@@ -45,40 +53,39 @@
     <option value="auditor">Auditor</option>
   </select>
 
-  <!-- Batch ID -->
+  <!-- BATCH ID -->
   <label>Batch ID</label>
   <input type="text" id="batchId" readonly>
 
-  <!-- Capture Location -->
+  <!-- LOCATION -->
   <button id="locationBtn" onclick="captureLocation()">📍 Capture Geo-Location</button>
 
   <div class="box" id="locationBox">
     Location not captured
   </div>
 
-  <!-- Photo Upload -->
+  <!-- PHOTO -->
   <label>Upload Proof Photo (optional)</label>
   <input type="file" id="photoInput" accept="image/*" capture="environment">
 
-  <!-- Submit Proof -->
+  <!-- SUBMIT -->
   <button id="submitBtn" onclick="submitProof()">✅ Submit Proof</button>
 
-  <!-- Proof Output -->
+  <!-- OUTPUT -->
   <div class="box" id="output"></div>
 
-  <!-- Proof Status -->
+  <!-- STATUS -->
   <div id="proofStatus">
     Proof Status: <span id="statusText">Not Submitted</span>
   </div>
 
-  <!-- Incentives -->
+  <!-- INCENTIVES -->
   <div id="incentiveBox">
-    Incentive Points: <span id="pointsText">0</span>
-    <br>
+    Incentive Points: <span id="pointsText">0</span><br>
     Incentive Status: <span id="pointsStatus">Not Eligible</span>
   </div>
 
-  <!-- Auditor Actions -->
+  <!-- AUDITOR ACTIONS -->
   <button id="verifyBtn" onclick="markVerified()" style="margin-top:10px;">
     ✔ Mark as Verified
   </button>
@@ -86,6 +93,12 @@
   <button id="flagBtn" onclick="markFlagged()">
     ⚠ Mark as Flagged
   </button>
+
+  <!-- TIMELINE -->
+  <div class="box">
+    <b>Batch Proof Timeline</b>
+    <ul id="timeline"></ul>
+  </div>
 
   <script>
     let latitude = null;
@@ -95,11 +108,30 @@
     let incentivePoints = 10;
     let incentiveState = "Not Eligible";
 
+    let timeline = [];
+
     /* Auto-fill Batch ID from QR */
     const params = new URLSearchParams(window.location.search);
     const batchFromQR = params.get("batch");
     if (batchFromQR) {
       document.getElementById("batchId").value = batchFromQR;
+      addTimeline("QR Scanned & Batch Loaded");
+    }
+
+    function addTimeline(event) {
+      const time = new Date().toLocaleString();
+      timeline.push(`${event} (${time})`);
+      renderTimeline();
+    }
+
+    function renderTimeline() {
+      const ul = document.getElementById("timeline");
+      ul.innerHTML = "";
+      timeline.forEach(e => {
+        const li = document.createElement("li");
+        li.innerText = e;
+        ul.appendChild(li);
+      });
     }
 
     function handleRoleChange() {
@@ -121,11 +153,12 @@
       }
 
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        pos => {
           latitude = pos.coords.latitude;
           longitude = pos.coords.longitude;
           document.getElementById("locationBox").innerHTML =
-            "Latitude: " + latitude + "<br>Longitude: " + longitude;
+            `Latitude: ${latitude}<br>Longitude: ${longitude}`;
+          addTimeline("Geo-location Captured");
         },
         () => alert("Location permission denied")
       );
@@ -133,7 +166,7 @@
 
     function submitProof() {
       if (!latitude || !longitude) {
-        alert("Please capture geo-location first");
+        alert("Capture geo-location first");
         return;
       }
 
@@ -155,6 +188,8 @@
       incentiveState = "Locked";
       document.getElementById("pointsText").innerText = incentivePoints;
       document.getElementById("pointsStatus").innerText = "Locked (Awaiting Verification)";
+
+      addTimeline("Proof Submitted");
     }
 
     function markVerified() {
@@ -164,6 +199,8 @@
 
       incentiveState = "Released";
       document.getElementById("pointsStatus").innerText = "Released ✔️";
+
+      addTimeline("Proof Verified by Auditor");
     }
 
     function markFlagged() {
@@ -174,6 +211,8 @@
       incentiveState = "Cancelled";
       document.getElementById("pointsStatus").innerText = "Cancelled ❌";
       document.getElementById("pointsText").innerText = "0";
+
+      addTimeline("Proof Flagged by Auditor");
     }
 
     handleRoleChange();
