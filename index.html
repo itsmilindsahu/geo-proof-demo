@@ -26,7 +26,7 @@
       margin-top: 15px;
     }
 
-    #proofStatus {
+    #proofStatus, #incentiveBox {
       margin-top: 15px;
       font-weight: bold;
     }
@@ -71,6 +71,13 @@
     Proof Status: <span id="statusText">Not Submitted</span>
   </div>
 
+  <!-- Incentives -->
+  <div id="incentiveBox">
+    Incentive Points: <span id="pointsText">0</span>
+    <br>
+    Incentive Status: <span id="pointsStatus">Not Eligible</span>
+  </div>
+
   <!-- Auditor Actions -->
   <button id="verifyBtn" onclick="markVerified()" style="margin-top:10px;">
     ✔ Mark as Verified
@@ -83,7 +90,10 @@
   <script>
     let latitude = null;
     let longitude = null;
+
     let proofStatus = "Not Submitted";
+    let incentivePoints = 10;
+    let incentiveState = "Not Eligible";
 
     /* Auto-fill Batch ID from QR */
     const params = new URLSearchParams(window.location.search);
@@ -94,7 +104,6 @@
 
     function handleRoleChange() {
       const role = document.getElementById("role").value;
-
       const isAuditor = role === "auditor";
 
       document.getElementById("locationBtn").disabled = isAuditor;
@@ -142,21 +151,31 @@
       proofStatus = "Pending Verification";
       document.getElementById("statusText").innerText = proofStatus;
       document.getElementById("statusText").style.color = "orange";
+
+      incentiveState = "Locked";
+      document.getElementById("pointsText").innerText = incentivePoints;
+      document.getElementById("pointsStatus").innerText = "Locked (Awaiting Verification)";
     }
 
     function markVerified() {
       proofStatus = "Verified";
       document.getElementById("statusText").innerText = proofStatus;
       document.getElementById("statusText").style.color = "green";
+
+      incentiveState = "Released";
+      document.getElementById("pointsStatus").innerText = "Released ✔️";
     }
 
     function markFlagged() {
       proofStatus = "Flagged";
       document.getElementById("statusText").innerText = proofStatus;
       document.getElementById("statusText").style.color = "red";
+
+      incentiveState = "Cancelled";
+      document.getElementById("pointsStatus").innerText = "Cancelled ❌";
+      document.getElementById("pointsText").innerText = "0";
     }
 
-    // Initialize default role behavior
     handleRoleChange();
   </script>
 
