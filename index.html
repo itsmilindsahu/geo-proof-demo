@@ -5,6 +5,9 @@
   <title>TRACEWASTE – Geo-Verified Waste Proof</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Website Icon -->
+  <link rel="icon" type="image/png" href="logo.png">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -26,7 +29,7 @@
       margin-top: 15px;
     }
 
-    .title {
+    h2 {
       text-align: center;
     }
 
@@ -43,7 +46,12 @@
 
 <body>
 
-  <h2 class="title">TRACEWASTE – Proof Submission</h2>
+  <!-- LOGO -->
+  <div style="text-align:center; margin-bottom:15px;">
+    <img src="logo.png" alt="TRACEWASTE Logo" width="120">
+  </div>
+
+  <h2>Geo-Tagged Waste Proof Submission</h2>
 
   <!-- ROLE -->
   <label>Select Role</label>
@@ -53,7 +61,7 @@
     <option value="auditor">Auditor</option>
   </select>
 
-  <!-- BATCH ID -->
+  <!-- BATCH -->
   <label>Batch ID</label>
   <input type="text" id="batchId" readonly>
 
@@ -85,14 +93,9 @@
     Incentive Status: <span id="pointsStatus">Not Eligible</span>
   </div>
 
-  <!-- AUDITOR ACTIONS -->
-  <button id="verifyBtn" onclick="markVerified()" style="margin-top:10px;">
-    ✔ Mark as Verified
-  </button>
-
-  <button id="flagBtn" onclick="markFlagged()">
-    ⚠ Mark as Flagged
-  </button>
+  <!-- AUDITOR -->
+  <button id="verifyBtn" onclick="markVerified()">✔ Mark as Verified</button>
+  <button id="flagBtn" onclick="markFlagged()">⚠ Mark as Flagged</button>
 
   <!-- TIMELINE -->
   <div class="box">
@@ -101,30 +104,19 @@
   </div>
 
   <script>
-    let latitude = null;
-    let longitude = null;
-
-    let proofStatus = "Not Submitted";
+    let latitude = null, longitude = null;
     let incentivePoints = 10;
-    let incentiveState = "Not Eligible";
-
     let timeline = [];
 
-    /* Auto-fill Batch ID from QR */
     const params = new URLSearchParams(window.location.search);
-    const batchFromQR = params.get("batch");
-    if (batchFromQR) {
-      document.getElementById("batchId").value = batchFromQR;
+    const batch = params.get("batch");
+    if (batch) {
+      document.getElementById("batchId").value = batch;
       addTimeline("QR Scanned & Batch Loaded");
     }
 
     function addTimeline(event) {
-      const time = new Date().toLocaleString();
-      timeline.push(`${event} (${time})`);
-      renderTimeline();
-    }
-
-    function renderTimeline() {
+      timeline.push(event + " (" + new Date().toLocaleString() + ")");
       const ul = document.getElementById("timeline");
       ul.innerHTML = "";
       timeline.forEach(e => {
@@ -135,83 +127,47 @@
     }
 
     function handleRoleChange() {
-      const role = document.getElementById("role").value;
-      const isAuditor = role === "auditor";
-
+      const isAuditor = document.getElementById("role").value === "auditor";
       document.getElementById("locationBtn").disabled = isAuditor;
       document.getElementById("submitBtn").disabled = isAuditor;
       document.getElementById("photoInput").disabled = isAuditor;
-
       document.getElementById("verifyBtn").style.display = isAuditor ? "block" : "none";
       document.getElementById("flagBtn").style.display = isAuditor ? "block" : "none";
     }
 
     function captureLocation() {
-      if (!navigator.geolocation) {
-        alert("Geolocation not supported");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          latitude = pos.coords.latitude;
-          longitude = pos.coords.longitude;
-          document.getElementById("locationBox").innerHTML =
-            `Latitude: ${latitude}<br>Longitude: ${longitude}`;
-          addTimeline("Geo-location Captured");
-        },
-        () => alert("Location permission denied")
-      );
+      navigator.geolocation.getCurrentPosition(pos => {
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
+        document.getElementById("locationBox").innerHTML =
+          `Latitude: ${latitude}<br>Longitude: ${longitude}`;
+        addTimeline("Geo-location Captured");
+      });
     }
 
     function submitProof() {
-      if (!latitude || !longitude) {
-        alert("Capture geo-location first");
-        return;
-      }
-
-      const batchId = document.getElementById("batchId").value;
-      const timestamp = new Date().toISOString();
-
-      document.getElementById("output").innerHTML = `
-        <b>Proof Submitted</b><br><br>
-        <b>Batch ID:</b> ${batchId}<br>
-        <b>Timestamp:</b> ${timestamp}<br>
-        <b>Latitude:</b> ${latitude}<br>
-        <b>Longitude:</b> ${longitude}
-      `;
-
-      proofStatus = "Pending Verification";
-      document.getElementById("statusText").innerText = proofStatus;
+      const t = new Date().toISOString();
+      document.getElementById("output").innerHTML =
+        `<b>Proof Submitted</b><br>Batch: ${batch}<br>Time: ${t}`;
+      document.getElementById("statusText").innerText = "Pending Verification";
       document.getElementById("statusText").style.color = "orange";
-
-      incentiveState = "Locked";
       document.getElementById("pointsText").innerText = incentivePoints;
-      document.getElementById("pointsStatus").innerText = "Locked (Awaiting Verification)";
-
+      document.getElementById("pointsStatus").innerText = "Locked";
       addTimeline("Proof Submitted");
     }
 
     function markVerified() {
-      proofStatus = "Verified";
-      document.getElementById("statusText").innerText = proofStatus;
+      document.getElementById("statusText").innerText = "Verified";
       document.getElementById("statusText").style.color = "green";
-
-      incentiveState = "Released";
       document.getElementById("pointsStatus").innerText = "Released ✔️";
-
       addTimeline("Proof Verified by Auditor");
     }
 
     function markFlagged() {
-      proofStatus = "Flagged";
-      document.getElementById("statusText").innerText = proofStatus;
+      document.getElementById("statusText").innerText = "Flagged";
       document.getElementById("statusText").style.color = "red";
-
-      incentiveState = "Cancelled";
       document.getElementById("pointsStatus").innerText = "Cancelled ❌";
       document.getElementById("pointsText").innerText = "0";
-
       addTimeline("Proof Flagged by Auditor");
     }
 
