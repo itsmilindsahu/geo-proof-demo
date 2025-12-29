@@ -2,102 +2,176 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>TRACEWASTE</title>
+  <title>TRACEWASTE – Geo-Verified Waste Proof</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Website Icon -->
+  <link rel="icon" type="image/png" href="logo.png">
 
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 600px;
+      max-width: 520px;
       margin: auto;
       padding: 20px;
-      text-align: center;
     }
 
-    .box {
-      border: 1px solid #ccc;
-      padding: 15px;
-      margin-top: 20px;
-      text-align: left;
-    }
-
-    input, button {
+    input, button, select {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
       font-size: 16px;
+    }
+
+    .box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 15px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    #proofStatus, #incentiveBox {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    ul {
+      padding-left: 20px;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- BASIC HEADER -->
-  <h1>TRACEWASTE</h1>
-  <p><b>QR-Enabled, Geo-Verified Waste Traceability System</b></p>
-
-  <hr>
-
-  <!-- DEPLOYMENT CHECK -->
-  <div class="box">
-    <b>Deployment Status</b><br>
-    ✅ GitHub Pages is working if you can see this page.
+  <!-- LOGO -->
+  <div style="text-align:center; margin-bottom:15px;">
+    <img src="logo.png" alt="TRACEWASTE Logo" width="120">
   </div>
 
-  <!-- BATCH CHECK -->
-  <div class="box">
-    <b>Batch ID from QR</b><br>
-    <span id="batchText">No batch detected</span>
-  </div>
+  <h2>Geo-Tagged Waste Proof Submission</h2>
+
+  <!-- ROLE -->
+  <label>Select Role</label>
+  <select id="role" onchange="handleRoleChange()">
+    <option value="collector">Collector</option>
+    <option value="recycler">Recycler</option>
+    <option value="auditor">Auditor</option>
+  </select>
+
+  <!-- BATCH -->
+  <label>Batch ID</label>
+  <input type="text" id="batchId" readonly>
 
   <!-- LOCATION -->
-  <button onclick="captureLocation()">📍 Capture Geo-Location</button>
+  <button id="locationBtn" onclick="captureLocation()">📍 Capture Geo-Location</button>
 
   <div class="box" id="locationBox">
     Location not captured
   </div>
 
-  <!-- SUBMIT -->
-  <button onclick="submitProof()">✅ Submit Proof</button>
+  <!-- PHOTO -->
+  <label>Upload Proof Photo (optional)</label>
+  <input type="file" id="photoInput" accept="image/*" capture="environment">
 
+  <!-- SUBMIT -->
+  <button id="submitBtn" onclick="submitProof()">✅ Submit Proof</button>
+
+  <!-- OUTPUT -->
   <div class="box" id="output"></div>
 
+  <!-- STATUS -->
+  <div id="proofStatus">
+    Proof Status: <span id="statusText">Not Submitted</span>
+  </div>
+
+  <!-- INCENTIVES -->
+  <div id="incentiveBox">
+    Incentive Points: <span id="pointsText">0</span><br>
+    Incentive Status: <span id="pointsStatus">Not Eligible</span>
+  </div>
+
+  <!-- AUDITOR -->
+  <button id="verifyBtn" onclick="markVerified()">✔ Mark as Verified</button>
+  <button id="flagBtn" onclick="markFlagged()">⚠ Mark as Flagged</button>
+
+  <!-- TIMELINE -->
+  <div class="box">
+    <b>Batch Proof Timeline</b>
+    <ul id="timeline"></ul>
+  </div>
+
   <script>
-    // Read batch from URL
+    let latitude = null, longitude = null;
+    let incentivePoints = 10;
+    let timeline = [];
+
     const params = new URLSearchParams(window.location.search);
     const batch = params.get("batch");
-
     if (batch) {
-      document.getElementById("batchText").innerText = batch;
+      document.getElementById("batchId").value = batch;
+      addTimeline("QR Scanned & Batch Loaded");
     }
 
-    let lat = null, lon = null;
+    function addTimeline(event) {
+      timeline.push(event + " (" + new Date().toLocaleString() + ")");
+      const ul = document.getElementById("timeline");
+      ul.innerHTML = "";
+      timeline.forEach(e => {
+        const li = document.createElement("li");
+        li.innerText = e;
+        ul.appendChild(li);
+      });
+    }
+
+    function handleRoleChange() {
+      const isAuditor = document.getElementById("role").value === "auditor";
+      document.getElementById("locationBtn").disabled = isAuditor;
+      document.getElementById("submitBtn").disabled = isAuditor;
+      document.getElementById("photoInput").disabled = isAuditor;
+      document.getElementById("verifyBtn").style.display = isAuditor ? "block" : "none";
+      document.getElementById("flagBtn").style.display = isAuditor ? "block" : "none";
+    }
 
     function captureLocation() {
-      if (!navigator.geolocation) {
-        alert("Geolocation not supported");
-        return;
-      }
-
       navigator.geolocation.getCurrentPosition(pos => {
-        lat = pos.coords.latitude;
-        lon = pos.coords.longitude;
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
         document.getElementById("locationBox").innerHTML =
-          "Latitude: " + lat + "<br>Longitude: " + lon;
+          `Latitude: ${latitude}<br>Longitude: ${longitude}`;
+        addTimeline("Geo-location Captured");
       });
     }
 
     function submitProof() {
-      if (!lat || !lon) {
-        alert("Capture location first");
-        return;
-      }
-
+      const t = new Date().toISOString();
       document.getElementById("output").innerHTML =
-        "<b>Proof Submitted</b><br>" +
-        "Batch: " + (batch || "N/A") + "<br>" +
-        "Time: " + new Date().toISOString();
+        `<b>Proof Submitted</b><br>Batch: ${batch}<br>Time: ${t}`;
+      document.getElementById("statusText").innerText = "Pending Verification";
+      document.getElementById("statusText").style.color = "orange";
+      document.getElementById("pointsText").innerText = incentivePoints;
+      document.getElementById("pointsStatus").innerText = "Locked";
+      addTimeline("Proof Submitted");
     }
+
+    function markVerified() {
+      document.getElementById("statusText").innerText = "Verified";
+      document.getElementById("statusText").style.color = "green";
+      document.getElementById("pointsStatus").innerText = "Released ✔️";
+      addTimeline("Proof Verified by Auditor");
+    }
+
+    function markFlagged() {
+      document.getElementById("statusText").innerText = "Flagged";
+      document.getElementById("statusText").style.color = "red";
+      document.getElementById("pointsStatus").innerText = "Cancelled ❌";
+      document.getElementById("pointsText").innerText = "0";
+      addTimeline("Proof Flagged by Auditor");
+    }
+
+    handleRoleChange();
   </script>
 
 </body>
