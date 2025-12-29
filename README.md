@@ -211,8 +211,8 @@ This project taught me that impactful environmental solutions do not always requ
 
 **Milind Sahu**  
 Undergraduate Student (Age 19)  
-Eco Champion Hackathon Participant  
-Indian Institute of Technology (IIT), Hyderabad  
+First Year BS-MS student  
+Indian Institute of Science Education and Research – IISER Tirupati
 
 ---
 
