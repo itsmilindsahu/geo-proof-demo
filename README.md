@@ -13,7 +13,8 @@ This project was **designed after reviewing 10+ research papers, government guid
 
 ## 🌍 Live Prototype
 
-- **Main Website:**  
+- **Main Website:**
+  https://itsmilindsahu.github.io/geo-proof-demo/home.html
   https://itsmilindsahu.github.io/geo-proof-demo/
 
 - **QR Code Generator:**  
