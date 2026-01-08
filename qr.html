@@ -5,11 +5,14 @@
   <title>TRACEWASTE – Batch QR Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- FAVICON -->
-  <link rel="icon" href="favicon.png" type="image/png">
-  <link rel="shortcut icon" href="favicon.png" type="image/png">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2e7d32">
 
-  <!-- QR Code Library -->
+  <!-- Icons -->
+  <link rel="icon" href="favicon.png" type="image/png">
+
+  <!-- QR Library -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
   <style>
@@ -20,27 +23,21 @@
       padding: 20px;
       text-align: center;
     }
-
     input, button {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
       font-size: 16px;
     }
-
     #qrContainer {
       margin-top: 20px;
     }
-
     #batchLabel {
       margin-top: 8px;
       font-weight: bold;
     }
-
     @media print {
-      body * {
-        visibility: hidden;
-      }
+      body * { visibility: hidden; }
       #qrContainer, #qrContainer * {
         visibility: visible;
       }
@@ -56,10 +53,7 @@
 
 <body>
 
-  <!-- LOGO -->
-  <div style="margin-bottom:15px;">
-    <img src="logo.png" alt="TRACEWASTE Logo" width="120">
-  </div>
+  <img src="logo.png" alt="TRACEWASTE Logo" width="120">
 
   <h2>Waste Batch QR Code Generator</h2>
 
@@ -78,30 +72,27 @@
 
   <script>
     function generateQR() {
-      const batchId = document.getElementById("batchInput").value.trim();
+      const batchId = batchInput.value.trim();
       if (!batchId) {
         alert("Enter Batch ID");
         return;
       }
 
-      document.getElementById("qrcode").innerHTML = "";
-      document.getElementById("batchLabel").innerText = "";
+      qrcode.innerHTML = "";
+      batchLabel.innerText = "";
 
-      // ✅ CORRECT USERNAME
       const geoProofURL =
         "https://itsmilindsahu.github.io/geo-proof-demo/?batch=" +
         encodeURIComponent(batchId);
 
-      new QRCode(document.getElementById("qrcode"), {
+      new QRCode(qrcode, {
         text: geoProofURL,
         width: 200,
         height: 200
       });
 
-      document.getElementById("batchLabel").innerText =
-        "Batch ID: " + batchId;
-
-      document.getElementById("printBtn").style.display = "block";
+      batchLabel.innerText = "Batch ID: " + batchId;
+      printBtn.style.display = "block";
     }
   </script>
 
