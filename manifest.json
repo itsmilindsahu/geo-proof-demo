@@ -1,0 +1,23 @@
+{
+  "name": "TRACEWASTE – Proof-Based Waste Tracking",
+  "short_name": "TRACEWASTE",
+  "description": "QR-based, geo-verified waste traceability system",
+  "start_url": "/geo-proof-demo/?source=pwa",
+  "scope": "/geo-proof-demo/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#2e7d32",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
