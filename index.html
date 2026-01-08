@@ -5,7 +5,11 @@
   <title>TRACEWASTE – Geo-Verified Waste Proof</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- FAVICON -->
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2e7d32">
+
+  <!-- Icons -->
   <link rel="icon" type="image/png" href="favicon.png">
 
   <style>
@@ -15,29 +19,24 @@
       margin: auto;
       padding: 20px;
     }
-
     input, button, select {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
       font-size: 16px;
     }
-
     .box {
       border: 1px solid #ccc;
       padding: 10px;
       margin-top: 15px;
     }
-
     h2 {
       text-align: center;
     }
-
     #proofStatus, #incentiveBox {
       margin-top: 15px;
       font-weight: bold;
     }
-
     ul {
       padding-left: 20px;
     }
@@ -67,10 +66,7 @@
 
   <!-- LOCATION -->
   <button id="locationBtn" onclick="captureLocation()">📍 Capture Geo-Location</button>
-
-  <div class="box" id="locationBox">
-    Location not captured
-  </div>
+  <div class="box" id="locationBox">Location not captured</div>
 
   <!-- PHOTO -->
   <label>Upload Proof Photo (optional)</label>
@@ -79,7 +75,6 @@
   <!-- SUBMIT -->
   <button id="submitBtn" onclick="submitProof()">✅ Submit Proof</button>
 
-  <!-- OUTPUT -->
   <div class="box" id="output"></div>
 
   <!-- STATUS -->
@@ -93,7 +88,7 @@
     Incentive Status: <span id="pointsStatus">Not Eligible</span>
   </div>
 
-  <!-- AUDITOR CONTROLS -->
+  <!-- AUDITOR -->
   <button id="verifyBtn" onclick="markVerified()">✔ Mark as Verified</button>
   <button id="flagBtn" onclick="markFlagged()">⚠ Mark as Flagged</button>
 
@@ -104,6 +99,11 @@
   </div>
 
   <script>
+    // PWA Service Worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+
     let latitude = null, longitude = null;
     let incentivePoints = 10;
     let timeline = [];
@@ -128,12 +128,12 @@
     }
 
     function handleRoleChange() {
-      const isAuditor = document.getElementById("role").value === "auditor";
-      document.getElementById("locationBtn").disabled = isAuditor;
-      document.getElementById("submitBtn").disabled = isAuditor;
-      document.getElementById("photoInput").disabled = isAuditor;
-      document.getElementById("verifyBtn").style.display = isAuditor ? "block" : "none";
-      document.getElementById("flagBtn").style.display = isAuditor ? "block" : "none";
+      const isAuditor = role.value === "auditor";
+      locationBtn.disabled = isAuditor;
+      submitBtn.disabled = isAuditor;
+      photoInput.disabled = isAuditor;
+      verifyBtn.style.display = isAuditor ? "block" : "none";
+      flagBtn.style.display = isAuditor ? "block" : "none";
     }
 
     function captureLocation() {
@@ -141,16 +141,14 @@
         alert("Geolocation not supported");
         return;
       }
-
       navigator.geolocation.getCurrentPosition(
         pos => {
           latitude = pos.coords.latitude;
           longitude = pos.coords.longitude;
-          document.getElementById("locationBox").innerHTML =
-            `Latitude: ${latitude}<br>Longitude: ${longitude}`;
+          locationBox.innerHTML = `Latitude: ${latitude}<br>Longitude: ${longitude}`;
           addTimeline("Geo-location Captured");
         },
-        () => alert("Location access denied")
+        () => alert("Location permission denied")
       );
     }
 
@@ -159,28 +157,26 @@
         alert("Capture location first");
         return;
       }
-
-      document.getElementById("output").innerHTML =
-        `<b>Proof Submitted</b><br>Batch: ${batch}<br>Time: ${new Date().toISOString()}`;
-      document.getElementById("statusText").innerText = "Pending Verification";
-      document.getElementById("statusText").style.color = "orange";
-      document.getElementById("pointsText").innerText = incentivePoints;
-      document.getElementById("pointsStatus").innerText = "Locked";
+      output.innerHTML = `<b>Proof Submitted</b><br>Batch: ${batch}<br>Time: ${new Date().toISOString()}`;
+      statusText.innerText = "Pending Verification";
+      statusText.style.color = "orange";
+      pointsText.innerText = incentivePoints;
+      pointsStatus.innerText = "Locked";
       addTimeline("Proof Submitted");
     }
 
     function markVerified() {
-      document.getElementById("statusText").innerText = "Verified";
-      document.getElementById("statusText").style.color = "green";
-      document.getElementById("pointsStatus").innerText = "Released ✔️";
+      statusText.innerText = "Verified";
+      statusText.style.color = "green";
+      pointsStatus.innerText = "Released ✔️";
       addTimeline("Proof Verified by Auditor");
     }
 
     function markFlagged() {
-      document.getElementById("statusText").innerText = "Flagged";
-      document.getElementById("statusText").style.color = "red";
-      document.getElementById("pointsStatus").innerText = "Cancelled ❌";
-      document.getElementById("pointsText").innerText = "0";
+      statusText.innerText = "Flagged";
+      statusText.style.color = "red";
+      pointsText.innerText = "0";
+      pointsStatus.innerText = "Cancelled ❌";
       addTimeline("Proof Flagged by Auditor");
     }
 
