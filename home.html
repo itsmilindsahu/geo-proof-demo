@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TRACEWASTE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2e7d32">
+
+  <!-- Icon -->
+  <link rel="icon" href="favicon.png" type="image/png">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 520px;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .card {
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .primary {
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+    }
+
+    .secondary {
+      background-color: white;
+      color: #2e7d32;
+      border: 2px solid #2e7d32;
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGO -->
+  <img src="logo.png" alt="TRACEWASTE Logo" width="120">
+
+  <h1>TRACEWASTE</h1>
+  <p><b>Proof-Based Waste Traceability System</b></p>
+
+  <div class="card">
+    <p>
+      TRACEWASTE ensures waste is not just segregated,
+      but also <b>verified after collection</b>.
+    </p>
+
+    <button class="primary"
+      onclick="window.location.href='index.html'">
+      📍 Submit Geo-Tagged Proof
+    </button>
+
+    <button class="secondary"
+      onclick="window.location.href='qr.html'">
+      🔗 Generate Waste Batch QR
+    </button>
+  </div>
+
+  <footer>
+    Eco Champion Hackathon • IIT Hyderabad<br>
+    Elan & nVision 2026
+  </footer>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
+
+</body>
+</html>
