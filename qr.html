@@ -5,9 +5,8 @@
   <title>TRACEWASTE – Batch QR Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- FAVICON (FORCE FIX) -->
+  <!-- FAVICON -->
   <link rel="icon" href="favicon.png" type="image/png">
-  <link rel="icon" href="favicon.png" sizes="32x32" type="image/png">
   <link rel="shortcut icon" href="favicon.png" type="image/png">
 
   <!-- QR Code Library -->
@@ -88,8 +87,9 @@
       document.getElementById("qrcode").innerHTML = "";
       document.getElementById("batchLabel").innerText = "";
 
+      // ✅ CORRECT USERNAME
       const geoProofURL =
-        "https://milindsahu.github.io/geo-proof-demo/?batch=" +
+        "https://itsmilindsahu.github.io/geo-proof-demo/?batch=" +
         encodeURIComponent(batchId);
 
       new QRCode(document.getElementById("qrcode"), {
