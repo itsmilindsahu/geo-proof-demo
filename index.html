@@ -5,8 +5,8 @@
   <title>TRACEWASTE – Geo-Verified Waste Proof</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Website Icon -->
-  <link rel="icon" type="image/png" href="logo.png">
+  <!-- FAVICON -->
+  <link rel="icon" type="image/png" href="favicon.png">
 
   <style>
     body {
@@ -93,7 +93,7 @@
     Incentive Status: <span id="pointsStatus">Not Eligible</span>
   </div>
 
-  <!-- AUDITOR -->
+  <!-- AUDITOR CONTROLS -->
   <button id="verifyBtn" onclick="markVerified()">✔ Mark as Verified</button>
   <button id="flagBtn" onclick="markFlagged()">⚠ Mark as Flagged</button>
 
@@ -110,6 +110,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const batch = params.get("batch");
+
     if (batch) {
       document.getElementById("batchId").value = batch;
       addTimeline("QR Scanned & Batch Loaded");
@@ -136,19 +137,31 @@
     }
 
     function captureLocation() {
-      navigator.geolocation.getCurrentPosition(pos => {
-        latitude = pos.coords.latitude;
-        longitude = pos.coords.longitude;
-        document.getElementById("locationBox").innerHTML =
-          `Latitude: ${latitude}<br>Longitude: ${longitude}`;
-        addTimeline("Geo-location Captured");
-      });
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+          document.getElementById("locationBox").innerHTML =
+            `Latitude: ${latitude}<br>Longitude: ${longitude}`;
+          addTimeline("Geo-location Captured");
+        },
+        () => alert("Location access denied")
+      );
     }
 
     function submitProof() {
-      const t = new Date().toISOString();
+      if (!latitude || !longitude) {
+        alert("Capture location first");
+        return;
+      }
+
       document.getElementById("output").innerHTML =
-        `<b>Proof Submitted</b><br>Batch: ${batch}<br>Time: ${t}`;
+        `<b>Proof Submitted</b><br>Batch: ${batch}<br>Time: ${new Date().toISOString()}`;
       document.getElementById("statusText").innerText = "Pending Verification";
       document.getElementById("statusText").style.color = "orange";
       document.getElementById("pointsText").innerText = incentivePoints;
@@ -176,4 +189,3 @@
 
 </body>
 </html>
-
